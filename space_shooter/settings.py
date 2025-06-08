@@ -123,6 +123,12 @@ CORS_ALLOWED_ORIGINS = [
 
 CORS_ALLOW_CREDENTIALS = True
 
+ALLOWED_HOSTS = [
+    'localhost',
+    '127.0.0.1',
+    'space-shooter-django-final-test.onrender.com'
+]
+
 # Session settings
 SESSION_COOKIE_AGE = 86400  # 24 hours
 SESSION_SAVE_EVERY_REQUEST = True
