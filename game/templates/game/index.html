@@ -1,0 +1,299 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Space Shooter Deluxe</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}" />
+    <meta name="csrf-token" content="{{ csrf_token }}" />
+    <style>
+      /* Inline CSS to fix the vertical layout issue */
+      .auth-form {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        max-width: 300px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+
+      .auth-form input {
+        padding: 12px;
+        border: 2px solid #333;
+        border-radius: 5px;
+        font-size: 16px;
+        background-color: #1a1a1a;
+        color: white;
+        width: 100%;
+        box-sizing: border-box;
+      }
+
+      .auth-form input:focus {
+        outline: none;
+        border-color: #4caf50;
+      }
+
+      .auth-form button {
+        padding: 12px 20px;
+        border: none;
+        border-radius: 5px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+        width: 100%;
+      }
+
+      .auth-form button[type="submit"] {
+        background-color: #4caf50;
+        color: white;
+      }
+
+      .auth-form button[type="submit"]:hover {
+        background-color: #45a049;
+      }
+
+      .auth-form button[type="button"] {
+        background-color: #666;
+        color: white;
+        margin-top: 10px;
+      }
+
+      .auth-form button[type="button"]:hover {
+        background-color: #777;
+      }
+
+      .screen {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        padding: 20px;
+        text-align: center;
+      }
+
+      .screen h1 {
+        color: white;
+        margin-bottom: 20px;
+        font-size: 2.5em;
+      }
+
+      .screen p {
+        color: #ccc;
+        margin-bottom: 30px;
+        font-size: 1.2em;
+      }
+
+      .error-message {
+        color: #ff4444;
+        margin-top: 15px;
+        padding: 10px;
+        border-radius: 5px;
+        background-color: rgba(255, 68, 68, 0.1);
+        border: 1px solid #ff4444;
+      }
+
+      .hidden {
+        display: none !important;
+      }
+
+      body {
+        margin: 0;
+        padding: 0;
+        background-color: #000;
+        font-family: "Arial", sans-serif;
+        overflow: hidden;
+      }
+
+      .game-container {
+        width: 100vw;
+        height: 100vh;
+        position: relative;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="game-container">
+      <!-- Login Screen -->
+      <div id="login-screen" class="screen">
+        <h1>Space Shooter Deluxe</h1>
+        <p>Please login to play</p>
+        <form id="login-form" class="auth-form">
+          <input
+            type="text"
+            id="login-username"
+            placeholder="Username"
+            required
+          />
+          <input
+            type="password"
+            id="login-password"
+            placeholder="Password"
+            required
+          />
+          <button type="submit">Login</button>
+          <button type="button" id="show-register">Register</button>
+        </form>
+        <div id="login-error" class="error-message hidden"></div>
+      </div>
+
+      <!-- Register Screen -->
+      <div id="register-screen" class="screen hidden">
+        <h1>Create Account</h1>
+        <p>Join the space defenders!</p>
+        <form id="register-form" class="auth-form">
+          <input
+            type="text"
+            id="register-username"
+            placeholder="Username"
+            required
+          />
+          <input
+            type="email"
+            id="register-email"
+            placeholder="Email"
+            required
+          />
+          <input
+            type="password"
+            id="register-password"
+            placeholder="Password"
+            required
+          />
+          <input
+            type="password"
+            id="register-password-confirm"
+            placeholder="Confirm Password"
+            required
+          />
+          <button type="submit">Register</button>
+          <button type="button" id="show-login">Back to Login</button>
+        </form>
+        <div id="register-error" class="error-message hidden"></div>
+      </div>
+
+      <!-- Start Screen -->
+      <div id="start-screen" class="screen hidden">
+        <div class="user-info">
+          <span>Welcome, <span id="username-display"></span>!</span>
+          <button id="logout-button" class="logout-btn">Logout</button>
+        </div>
+        <h1>Space Shooter Deluxe</h1>
+        <p>Defend the galaxy against alien invaders!</p>
+        <div class="difficulty-selector">
+          <p>Select Difficulty:</p>
+          <div class="difficulty-buttons">
+            <button id="easy-button" class="difficulty-btn selected">
+              Easy
+            </button>
+            <button id="medium-button" class="difficulty-btn">Medium</button>
+            <button id="hard-button" class="difficulty-btn">Hard</button>
+          </div>
+        </div>
+        <div class="ship-selector">
+          <p>Select Ship:</p>
+          <div class="ship-options">
+            <div class="ship-option selected" data-ship="blue">
+              <div class="ship-preview blue-ship"></div>
+              <span>Blue Fighter</span>
+            </div>
+            <div class="ship-option" data-ship="red">
+              <div class="ship-preview red-ship"></div>
+              <span>Red Striker</span>
+            </div>
+            <div class="ship-option" data-ship="green">
+              <div class="ship-preview green-ship"></div>
+              <span>Green Scout</span>
+            </div>
+          </div>
+        </div>
+        <button id="start-button">Start Game</button>
+        <button id="high-scores-button">Leaderboard</button>
+      </div>
+
+      <!-- Game Screen -->
+      <div id="game-screen" class="screen hidden">
+        <div class="game-stats">
+          <div class="score-container">Score: <span id="score">0</span></div>
+          <div class="level-container">Level: <span id="level">1</span></div>
+          <div class="lives-container">Lives: <span id="lives">3</span></div>
+          <div class="power-container">
+            Power: <span id="power-level">0</span>
+          </div>
+        </div>
+        <canvas id="game-canvas" width="800" height="600"></canvas>
+        <div class="controls-info">
+          <div class="control-item">
+            <span>Movement</span>
+            <span>Arrow Keys or WASD</span>
+          </div>
+          <div class="control-item">
+            <span>Shoot</span>
+            <span>Spacebar</span>
+          </div>
+          <div class="control-item">
+            <span>Special</span>
+            <span>E or Shift</span>
+          </div>
+          <div class="control-item">
+            <span>Pause</span>
+            <span>P or Escape</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Game Over Screen -->
+      <div id="game-over-screen" class="screen hidden">
+        <h1>Game Over</h1>
+        <p>Final Score: <span id="final-score">0</span></p>
+        <div id="new-high-score" class="hidden">
+          <h2>New High Score!</h2>
+          <p>Your score has been saved to the leaderboard!</p>
+        </div>
+        <button id="restart-button">Play Again</button>
+        <button id="main-menu-button">Main Menu</button>
+      </div>
+
+      <!-- Enhanced Pause Screen -->
+      <div id="pause-screen" class="screen pause-overlay hidden">
+        <div class="pause-content">
+          <h1 class="pause-title">Game Paused</h1>
+          <div class="pause-icon">⏸️</div>
+          <p class="pause-subtitle">Take a break, defender!</p>
+          <div class="pause-buttons">
+            <button id="resume-button" class="pause-btn resume-btn">
+              <span class="btn-icon">▶️</span>
+              Resume Game
+            </button>
+            <button id="quit-button" class="pause-btn quit-btn">
+              <span class="btn-icon">🏠</span>
+              Quit to Main Menu
+            </button>
+          </div>
+          <div class="pause-controls-reminder">
+            <p>Press <kbd>P</kbd> or <kbd>Escape</kbd> to resume</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- High Scores Screen -->
+      <div id="high-scores-screen" class="screen hidden">
+        <h1>Leaderboard</h1>
+        <div class="leaderboard-filters">
+          <button id="all-time-scores" class="filter-btn selected">
+            All Time
+          </button>
+          <button id="monthly-scores" class="filter-btn">This Month</button>
+          <button id="weekly-scores" class="filter-btn">This Week</button>
+        </div>
+        <div id="scores-list" class="scores-list">
+          <!-- Scores will be populated here -->
+        </div>
+        <button id="back-button">Back to Menu</button>
+      </div>
+    </div>
+
+    <script src="{% static 'js/game.js' %}"></script>
+  </body>
+</html>
