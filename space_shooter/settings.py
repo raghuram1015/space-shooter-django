@@ -119,15 +119,11 @@ REST_FRAMEWORK = {
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:8000",
     "http://127.0.0.1:8000",
+    'space-shooter-django-final-test.onrender.com',
+    '*'
 ]
 
 CORS_ALLOW_CREDENTIALS = True
-
-ALLOWED_HOSTS = [
-    'localhost',
-    '127.0.0.1',
-    'space-shooter-django-final-test.onrender.com'
-]
 
 # Session settings
 SESSION_COOKIE_AGE = 86400  # 24 hours
